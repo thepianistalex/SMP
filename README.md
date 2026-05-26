@@ -2,6 +2,18 @@
 
 `SMP` is an R package for sequential mixture prior analyses in platform trials with concurrent, nonconcurrent, and historical controls.
 
+The package implements the proposed method from the paper "A Bayesian Dynamic Information Borrowing Method for Platform Trials Integrating Both the Nonconcurrent and Historical Controls".
+
+## Installation
+
+```r
+install.packages("remotes")
+
+remotes::install_github("thepianistalex/SMP")
+```
+
+## Usage
+
 The package exports two main functions:
 
 - `smp_binary()` for binary endpoints.
