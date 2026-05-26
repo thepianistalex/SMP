@@ -2,8 +2,8 @@ Package: SMP
 Type: Package
 Title: Sequential Mixture Prior Methods for Platform Trials
 Version: 0.1.0
-Author: To be determined
-Maintainer: To be determined
+Author: Lang Lang, Yanxun Xu, and Yong Zang
+Maintainer: Lang Lang <llang7@jh.edu>
 Description: Implements sequential mixture prior analyses for binary and continuous endpoints in platform trials with concurrent, nonconcurrent, and historical controls.
 License: GPL-3
 Encoding: UTF-8
