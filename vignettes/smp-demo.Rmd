@@ -1,0 +1,125 @@
+---
+title: "Using the SMP Package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using the SMP Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE}
+library(SMP)
+seed <- 20010416
+```
+
+This vignette demonstrates the sequential mixture prior (SMP) functions for binary and continuous endpoints using simulated data. The examples use `pi2_prior = "MAP"`; the same function calls can use `pi2_prior = "pool"` so that the prior for case when both nonconcurrent and historical controls are congruent is constructed from the posterior based on the pooled nonconcurrent and historical controls.
+
+# Binary Endpoint
+
+## Data Simulation
+
+We first simulate a binary endpoint with treatment, concurrent control, nonconcurrent control, and historical control data.
+
+```{r binary-simulation}
+set.seed(seed)
+
+binary_truth <- c(theta_t = 0.55, theta_c = 0.40, theta_n = 0.40, theta_h = 0.2)
+binary_n <- c(nt = 200, nc = 100, nn = 200, nh = 200)
+
+binary_x <- c(
+  xt = rbinom(1, binary_n[["nt"]], binary_truth[["theta_t"]]),
+  xc = rbinom(1, binary_n[["nc"]], binary_truth[["theta_c"]]),
+  xn = rbinom(1, binary_n[["nn"]], binary_truth[["theta_n"]]),
+  xh = rbinom(1, binary_n[["nh"]], binary_truth[["theta_h"]])
+)
+
+binary_data <- data.frame(
+  source = c("Treatment", "Concurrent", "Nonconcurrent", "Historical"),
+  n = unname(binary_n[c("nt", "nc", "nn", "nh")]),
+  responders = unname(binary_x[c("xt", "xc", "xn", "xh")])
+)
+binary_data$response_rate <- binary_data$responders / binary_data$n
+binary_data
+```
+
+## SMP
+
+We fit the binary SMP model using a clinically meaningful difference of 0.10.
+
+```{r binary-fit}
+binary_fit <- smp_binary(
+  nt = binary_n[["nt"]], xt = binary_x[["xt"]],
+  nc = binary_n[["nc"]], xc = binary_x[["xc"]],
+  nn = binary_n[["nn"]], xn = binary_x[["xn"]],
+  nh = binary_n[["nh"]], xh = binary_x[["xh"]],
+  delta = 0.10,
+  n_samples = 5000,
+  pi2_prior = "MAP",
+  seed = seed
+)
+```
+
+## Output
+
+The fitted object contains posterior samples and the borrowing weights.
+
+```{r binary-output}
+binary_summary <- summary(binary_fit)
+binary_summary$posterior
+binary_summary$prob_superiority
+transform(binary_summary$weights, weight = round(weight, 2))
+```
+
+
+# Continuous Endpoint
+
+## Data Simulation
+
+We next simulate a normally distributed endpoint. The treatment arm has a higher mean than the concurrent control, and the external controls are close to the concurrent control.
+
+```{r continuous-simulation}
+set.seed(seed)
+
+continuous_n <- c(nt = 200, nc = 100, nn = 200, nh = 200)
+continuous_truth <- c(mu_t = 0.60, mu_c = 0.00, mu_n = 0.00, mu_h = 1.00)
+sigma <- 2
+
+yt <- rnorm(continuous_n[["nt"]], mean = continuous_truth[["mu_t"]], sd = sigma)
+yc <- rnorm(continuous_n[["nc"]], mean = continuous_truth[["mu_c"]], sd = sigma)
+yn <- rnorm(continuous_n[["nn"]], mean = continuous_truth[["mu_n"]], sd = sigma)
+yh <- rnorm(continuous_n[["nh"]], mean = continuous_truth[["mu_h"]], sd = sigma)
+
+continuous_data <- data.frame(
+  source = c("Treatment", "Concurrent", "Nonconcurrent", "Historical"),
+  n = unname(continuous_n[c("nt", "nc", "nn", "nh")]),
+  mean = c(mean(yt), mean(yc), mean(yn), mean(yh)),
+  sd = c(sd(yt), sd(yc), sd(yn), sd(yh))
+)
+continuous_data
+```
+
+## SMP
+
+We fit the continuous SMP model using a clinically meaningful mean difference of 0.60.
+
+```{r continuous-fit}
+continuous_fit <- smp_continuous(
+  nt = length(yt), yt = yt,
+  nc = length(yc), yc = yc,
+  nn = length(yn), yn = yn,
+  nh = length(yh), yh = yh,
+  delta = 0.60,
+  n_samples = 5000,
+  pi2_prior = "MAP",
+  seed = seed
+)
+```
+
+## Output
+
+```{r continuous-output}
+continuous_summary <- summary(continuous_fit)
+continuous_summary$posterior
+continuous_summary$prob_superiority
+transform(continuous_summary$weights, weight = round(weight, 2))
+```

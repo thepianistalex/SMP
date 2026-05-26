@@ -1,0 +1,5 @@
+export(smp_binary)
+export(smp_continuous)
+S3method(print,smp_fit)
+S3method(print,summary.smp_fit)
+S3method(summary,smp_fit)

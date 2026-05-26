@@ -1,0 +1,21 @@
+Package: SMP
+Type: Package
+Title: Sequential Mixture Prior Methods for Platform Trials
+Version: 0.1.0
+Author: SMP Authors
+Maintainer: SMP Authors <maintainer@example.com>
+Authors@R: person(given = "SMP", family = "Authors", role = c("aut", "cre"), email = "maintainer@example.com")
+Description: Implements sequential mixture prior analyses for binary and continuous endpoints in platform trials with concurrent, nonconcurrent, and historical controls.
+License: GPL-3
+Encoding: UTF-8
+Imports:
+    RBesT,
+    stats,
+    utils
+Suggests:
+    ggplot2,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
